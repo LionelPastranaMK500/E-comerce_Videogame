@@ -8,43 +8,46 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
     <link rel="stylesheet" href="~/lib/datatables/datatables.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Views/Shared/_Layout.cshtml.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">EcommerceVideogame</a>
+<body class="d-flex flex-column min-vh-100">
+    <header class="header">
+        <nav class="navbar navbar-expand-sm border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand text-white" asp-area="" asp-controller="Home" asp-action="Index">EcommerceVideogame</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Close">
+                        aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-white" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Games" asp-action="Index">Juegos</a>
+                                <a class="nav-link text-white" asp-area="" asp-controller="Games" asp-action="Index">Juegos</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Categories" asp-action="Index">Categorías</a>
+                                <a class="nav-link text-white" asp-area="" asp-controller="Categories" asp-action="Index">Categorías</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Publishers" asp-action="Index">Editores</a>
+                                <a class="nav-link text-white" asp-area="" asp-controller="Publishers" asp-action="Index">Editores</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Platforms" asp-action="Index">Plataformas</a>
+                                <a class="nav-link text-white" asp-area="" asp-controller="Platforms" asp-action="Index">Plataformas</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Genres" asp-action="Index">Géneros</a>
+                                <a class="nav-link text-white" asp-area="" asp-controller="Genres" asp-action="Index">Géneros</a>
                             </li>
                             @if (User.IsInRole("Admin"))
                             {
                                 <li class="nav-item">
-                                    <a class="nav-link text-dark" asp-area="" asp-controller="UserRoles" asp-action="Index">Asignaciones</a>
+                                    <a class="nav-link text-white" asp-area="" asp-controller="UserRoles" asp-action="Index">Asignaciones</a>
                                 </li>
                             }
                         }
@@ -53,18 +56,18 @@
                         @if (!User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="Login">Iniciar Sesión</a>
+                                <a class="nav-link text-white" asp-area="" asp-controller="Account" asp-action="Login">Iniciar Sesión</a>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                <span class="nav-link text-dark">Bienvenido, @User.Identity.Name</span>
+                                <span class="nav-link text-white">Bienvenido, @User.Identity.Name</span>
                             </li>
                             <li class="nav-item">
                                 <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="nav-link btn btn-link text-dark">Cerrar Sesión</button>
+                                    <button type="submit" class="nav-link btn btn-link text-white">Cerrar Sesión</button>
                                 </form>
                             </li>
                         }
@@ -73,16 +76,14 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            © 2025 - EcommerceVideogame
-        </div>
-    </footer>
+    <main role="main" class="flex-grow-1">
+        @RenderBody()
+    </main>
+        <footer class="border-top footer text-muted">
+            <div class="container">
+                © 2025 - EcommerceVideogame
+            </div>
+        </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/datatables/datatables.min.js"></script>

@@ -26,6 +26,7 @@ a {
 .border-top {
   border-top: 1px solid #e5e5e5;
 }
+
 .border-bottom {
   border-bottom: 1px solid #e5e5e5;
 }
@@ -39,10 +40,11 @@ button.accept-policy {
   line-height: inherit;
 }
 
+/* Ajustamos el footer para que no use position: absolute y permita que el fondo se extienda */
 .footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+    background: transparent; /* Permite que el fondo de .wrapper se vea */
+    color: #fff; /* Texto blanco para legibilidad */
 }
