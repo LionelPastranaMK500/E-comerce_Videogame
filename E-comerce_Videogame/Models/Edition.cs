@@ -1,14 +1,26 @@
-﻿namespace E_comerce_Videogame.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace E_comerce_Videogame.Models
 {
+    // 8. Editions
     public class Edition
     {
+        [Key]
         public int EditionId { get; set; }
+
+        [Required]
         public int GameId { get; set; }
-        public string Name { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(100)]
+        public string Name { get; set; }
+
+        [Required]
+        [Range(0, 999999.99)]
         public decimal BasePrice { get; set; }
 
-        // Propiedades de navegación
-        public Game Game { get; set; } = null!;
-        public ICollection<Variant> Variants { get; set; } = new List<Variant>();
+        // Propiedad de navegación
+        public virtual Game Game { get; set; }
+        public virtual ICollection<Variant> Variants { get; set; }
     }
 }

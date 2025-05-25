@@ -1,0 +1,151 @@
+﻿@{
+    ViewData["Title"] = "Listado de Editores";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <h2>Listado de Editores</h2>
+    <button type="button" class="btn btn-primary" onclick="AbrirRegistro(0)">Registrar Editor</button>
+    <table id="tb_publishers" class="table table-striped display" style="width:100%">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Sitio Web</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<div class="modal fade" id="publishersForm" tabindex="-1" aria-labelledby="publishersFormLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="publishersFormLabel">Registrar Editor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="publisherForm">
+                    <input type="hidden" id="publisherId" value="0" />
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="name" required>
+                        <div class="invalid-feedback">El nombre es obligatorio</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="website" class="form-label">Sitio Web</label>
+                        <input type="url" class="form-control" id="website">
+                        <div class="invalid-feedback">Ingrese una URL válida</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btn_grabar">Guardar Datos</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            console.log('Inicializando DataTables para tb_publishers');
+            $('#tb_publishers').DataTable({
+                ajax: {
+                    url: '@Url.Action("Listar", "Publishers")',
+                    dataSrc: 'data',
+                    error: function (xhr, error, thrown) {
+                        console.error('Error en AJAX:', error, thrown, xhr.responseText);
+                    }
+                },
+                columns: [
+                    { data: 'publisherId' },
+                    { data: 'name' },
+                    { data: 'website' },
+                    {
+                        data: null,
+                        render: function (data, type, row) {
+                            return '<a href="javascript:AbrirRegistro(' + row.publisherId + ')" class="btn btn-warning btn-sm" title="Editar"><i class="fas fa-edit"></i></a> ' +
+                                   '<a href="javascript:Borrar(' + row.publisherId + ')" class="btn btn-danger btn-sm" title="Eliminar"><i class="fas fa-trash"></i></a>';
+                        }
+                    }
+                ],
+                initComplete: function () {
+                    console.log('DataTables inicializado');
+                }
+            });
+        });
+
+        function AbrirRegistro(publisherId) {
+            if (publisherId !== 0) {
+                $.ajax({
+                    url: '@Url.Action("Consultar", "Publishers")',
+                    type: 'GET',
+                    data: { publisherId: publisherId },
+                    success: function (data) {
+                        console.log('Datos recibidos:', data);
+                        $('#publisherId').val(data.publisherId);
+                        $('#name').val(data.name);
+                        $('#website').val(data.website);
+                        $('#publishersForm').modal('show');
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error al consultar:', error, xhr.responseText);
+                        alert('Error al cargar los datos');
+                    }
+                });
+            } else {
+                $('#publisherId').val(0);
+                $('#name').val('');
+                $('#website').val('');
+                $('#publishersForm').modal('show');
+            }
+        }
+
+        $('#btn_grabar').click(function () {
+            if ($('#publisherForm')[0].checkValidity()) {
+                let publisher = {
+                    publisherId: parseInt($('#publisherId').val()),
+                    name: $('#name').val(),
+                    website: $('#website').val() || null
+                };
+                $.ajax({
+                    url: '@Url.Action("Grabar", "Publishers")',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(publisher),
+                    success: function (data) {
+                        if (data.resultado) {
+                            $('#tb_publishers').DataTable().ajax.reload();
+                            $('#publishersForm').modal('hide');
+                        } else {
+                            alert('No fue posible grabar la información');
+                        }
+                    },
+                    error: function () {
+                        alert('Error al grabar');
+                    }
+                });
+            } else {
+                $('#publisherForm').addClass('was-validated');
+            }
+        });
+
+        function Borrar(publisherId) {
+            if (confirm('¿Seguro de eliminar?')) {
+                $.ajax({
+                    url: '@Url.Action("Borrar", "Publishers")',
+                    type: 'POST',
+                    data: { publisherId: publisherId },
+                    success: function (data) {
+                        if (data.resultado) {
+                            $('#tb_publishers').DataTable().ajax.reload();
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+}

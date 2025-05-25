@@ -1,26 +1,18 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace E_comerce_Videogame.Models
 {
+    // 3. UserRoles (N-N)
+    [PrimaryKey(nameof(UserId), nameof(RoleId))]
     public class UserRole
     {
-        [Key]
-        [Column(Order = 1)]
         public int UserId { get; set; }
-
-        [Key]
-        [Column(Order = 2)]
         public int RoleId { get; set; }
-
-        [Required]
         public DateTime AssignedAt { get; set; } = DateTime.Now;
 
-        // Relaciones de navegación
-        [ForeignKey("UserId")]
-        public User User { get; set; }
-
-        [ForeignKey("RoleId")]
-        public Role Role { get; set; }
+        public virtual User User { get; set; }
+        public virtual Role Role { get; set; }
     }
 }

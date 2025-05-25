@@ -11,6 +11,7 @@ namespace E_comerce_Videogame.Models
         [StringLength(50)]
         public string Name { get; set; }
 
-        public ICollection<UserRole> UserRoles { get; set; }
+        // Propiedad de navegación
+        public virtual ICollection<UserRole> UserRoles { get; set; }
     }
 }

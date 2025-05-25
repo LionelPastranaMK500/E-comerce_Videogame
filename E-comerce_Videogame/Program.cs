@@ -1,5 +1,6 @@
 using E_comerce_Videogame.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Session;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,16 +8,36 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add services to the container.
-builder.Services.AddControllersWithViews();
+// Agregar soporte para sesiones
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+// Agregar servicios de autenticación y autorización
+builder.Services.AddAuthentication("CookieAuth")
+    .AddCookie("CookieAuth", options =>
+    {
+        options.Cookie.Name = "AuthCookie";
+        options.LoginPath = "/Account/Login";
+        options.AccessDeniedPath = "/Home/Error";
+    });
+
+builder.Services.AddAuthorization();
+
+// Agregar soporte para Newtonsoft.Json
+builder.Services.AddControllersWithViews()
+    .AddNewtonsoftJson();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configurar el pipeline
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
@@ -25,6 +46,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseSession(); // Debe ir antes de UseAuthentication y UseAuthorization
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

@@ -1,0 +1,290 @@
+﻿@{
+    ViewData["Title"] = "Listado de Juegos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <h2>Listado de Juegos</h2>
+    <button type="button" class="btn btn-primary" onclick="AbrirRegistro(0)">Registrar Juego</button>
+    <table id="tb_games" class="table table-striped display" style="width:100%">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Título</th>
+                <th>Descripción</th>
+                <th>Fecha de Lanzamiento</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<div class="modal fade" id="gamesForm" tabindex="-1" aria-labelledby="gamesFormLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="gamesFormLabel">Registrar Juego</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="gameForm" novalidate>
+                    <input type="hidden" id="gameId" value="0" />
+                    <div class="mb-3">
+                        <label for="displayGameId" class="form-label">ID</label>
+                        <input type="text" class="form-control" id="displayGameId" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Título</label>
+                        <input type="text" class="form-control" id="title" name="title" required>
+                        <div class="invalid-feedback">El título es obligatorio</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="description" name="description"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="releaseDate" class="form-label">Fecha de Lanzamiento</label>
+                        <input type="date" class="form-control" id="releaseDate" name="releaseDate">
+                    </div>
+                    <div class="mb-3">
+                        <label for="categoryId" class="form-label">Categoría</label>
+                        <select class="form-select" id="categoryId" name="categoryId">
+                            <option value="">Seleccione una categoría</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="publisherId" class="form-label">Editor</label>
+                        <select class="form-select" id="publisherId" name="publisherId">
+                            <option value="">Seleccione un editor</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="genreId" class="form-label">Género</label>
+                        <select class="form-select" id="genreId" name="genreId">
+                            <option value="">Seleccione un género</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="createdAtContainer" style="display:none;">
+                        <label for="createdAt" class="form-label">Creado el</label>
+                        <input type="datetime-local" class="form-control" id="createdAt" readonly>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btn_grabar">Guardar Datos</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            console.log('Inicializando DataTables para tb_games');
+            $('#tb_games').DataTable({
+                ajax: {
+                    url: '@Url.Action("Listar", "Games")',
+                    dataSrc: function (json) {
+                        if (json.error) {
+                            console.error('Error en la respuesta de Listar:', json.error);
+                            alert('Error al cargar los juegos: ' + json.error);
+                            return [];
+                        }
+                        return json.data || [];
+                    },
+                    error: function (xhr) {
+                        console.error('Error en AJAX:', xhr.responseText);
+                        let errorMsg = xhr.responseJSON?.error || xhr.statusText || 'Error desconocido';
+                        alert('Error al cargar los juegos: ' + errorMsg);
+                    }
+                },
+                columns: [
+                    { data: 'gameId' },
+                    { data: 'title' },
+                    { data: 'description' },
+                    {
+                        data: 'releaseDate',
+                        render: function (data) {
+                            return data ? new Date(data).toLocaleDateString() : '';
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function (data, type, row) {
+                            return '<a href="javascript:AbrirRegistro(' + row.gameId + ')" class="btn btn-warning btn-sm" title="Editar"><i class="fas fa-edit"></i></a> ' +
+                                   '<a href="javascript:Borrar(' + row.gameId + ')" class="btn btn-danger btn-sm" title="Eliminar"><i class="fas fa-trash"></i></a>';
+                        }
+                    }
+                ],
+                initComplete: function () {
+                    console.log('DataTables inicializado');
+                }
+            });
+
+            $.ajax({
+                url: '@Url.Action("GetCategories", "Games")',
+                type: 'GET',
+                success: function (response) {
+                    if (response.data && response.data.length > 0) {
+                        response.data.forEach(function (cat) {
+                            $('#categoryId').append(`<option value="${cat.categoryId}">${cat.name}</option>`);
+                        });
+                    } else {
+                        console.warn('No se cargaron categorías:', response.error || 'Sin datos');
+                    }
+                },
+                error: function (xhr) {
+                    console.error('Error al cargar categorías:', xhr.responseText);
+                }
+            });
+
+            $.ajax({
+                url: '@Url.Action("GetPublishers", "Games")',
+                type: 'GET',
+                success: function (response) {
+                    if (response.data && response.data.length > 0) {
+                        response.data.forEach(function (pub) {
+                            $('#publisherId').append(`<option value="${pub.publisherId}">${pub.name}</option>`);
+                        });
+                    } else {
+                        console.warn('No se cargaron editores:', response.error || 'Sin datos');
+                    }
+                },
+                error: function (xhr) {
+                    console.error('Error al cargar editores:', xhr.responseText);
+                }
+            });
+
+            $.ajax({
+                url: '@Url.Action("GetGenres", "Games")',
+                type: 'GET',
+                success: function (response) {
+                    if (response.data && response.data.length > 0) {
+                        response.data.forEach(function (genre) {
+                            $('#genreId').append(`<option value="${genre.genreId}">${genre.name}</option>`);
+                        });
+                    } else {
+                        console.warn('No se cargaron géneros:', response.error || 'Sin datos');
+                    }
+                },
+                error: function (xhr) {
+                    console.error('Error al cargar géneros:', xhr.responseText);
+                }
+            });
+        });
+
+        function AbrirRegistro(gameId) {
+            $('#gameForm').removeClass('was-validated');
+            $('#gamesFormLabel').text(gameId === 0 ? 'Registrar Juego' : 'Editar Juego');
+            $('#createdAtContainer').toggle(gameId !== 0);
+            $('#displayGameId').val(gameId === 0 ? '' : gameId);
+
+            if (gameId !== 0) {
+                $.ajax({
+                    url: '@Url.Action("Consultar", "Games")',
+                    type: 'GET',
+                    data: { gameId: gameId },
+                    success: function (response) {
+                        console.log('Datos recibidos (editar):', response);
+                        if (response.data && typeof response.data === 'object' && 'gameId' in response.data && response.data.gameId) {
+                            $('#gameId').val(response.data.gameId);
+                            $('#title').val(response.data.title || '');
+                            $('#description').val(response.data.description || '');
+                            $('#releaseDate').val(response.data.releaseDate ? new Date(response.data.releaseDate).toISOString().split('T')[0] : '');
+                            $('#categoryId').val(response.data.categoryId || '');
+                            $('#publisherId').val(response.data.publisherId || '');
+                            $('#genreId').val(response.data.genreId || '');
+                            $('#createdAt').val(response.data.createdAt ? new Date(response.data.createdAt).toISOString().slice(0, 16) : '');
+                            $('#gamesForm').modal('show');
+                        } else {
+                            alert(response.error || 'Juego no encontrado');
+                            $('#gamesForm').modal('hide');
+                        }
+                    },
+                    error: function (xhr) {
+                        console.error('Error al consultar:', xhr.responseText);
+                        alert('Error al cargar los datos: ' + (xhr.responseJSON?.error || xhr.statusText || 'Error desconocido'));
+                        $('#gamesForm').modal('hide');
+                    }
+                });
+            } else {
+                $('#gameId').val(0);
+                $('#title').val('');
+                $('#description').val('');
+                $('#releaseDate').val('');
+                $('#categoryId').val('');
+                $('#publisherId').val('');
+                $('#genreId').val('');
+                $('#createdAt').val('');
+                $('#gamesForm').modal('show');
+            }
+        }
+
+        $('#btn_grabar').click(function () {
+            const form = $('#gameForm')[0];
+            form.classList.add('was-validated');
+
+            // Depuración: Registrar valores del formulario
+            const titleValue = $('#title').val();
+            console.log('Valor del título:', titleValue);
+
+            if (form.checkValidity()) {
+                let game = {
+                    GameId: parseInt($('#gameId').val()),
+                    Title: titleValue, // Usar Title en lugar de title
+                    Description: $('#description').val() || null,
+                    ReleaseDate: $('#releaseDate').val() || null,
+                    CategoryId: $('#categoryId').val() ? parseInt($('#categoryId').val()) : null,
+                    PublisherId: $('#publisherId').val() ? parseInt($('#publisherId').val()) : null,
+                    GenreId: $('#genreId').val() ? parseInt($('#genreId').val()) : null
+                };
+
+                // Depuración: Registrar datos enviados
+                console.log('Datos enviados a Grabar:', game);
+
+                $.ajax({
+                    url: '@Url.Action("Grabar", "Games")',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(game),
+                    success: function (data) {
+                        if (data.resultado) {
+                            $('#tb_games').DataTable().ajax.reload();
+                            $('#gamesForm').modal('hide');
+                            form.classList.remove('was-validated');
+                        } else {
+                            alert('No fue posible grabar la información: ' + (data.mensaje || 'Error desconocido'));
+                        }
+                    },
+                    error: function (xhr) {
+                        console.error('Error al grabar:', xhr.responseText);
+                        alert('Error al grabar: ' + (xhr.responseJSON?.mensaje || xhr.statusText || 'Error desconocido'));
+                    }
+                });
+            } else {
+                console.warn('Formulario no válido');
+            }
+        });
+
+        function Borrar(gameId) {
+            if (confirm('¿Seguro de eliminar?')) {
+                $.ajax({
+                    url: '@Url.Action("Borrar", "Games")',
+                    type: 'POST',
+                    data: { gameId: gameId },
+                    success: function (data) {
+                        if (data.resultado) {
+                            $('#tb_games').DataTable().ajax.reload();
+                        } else {
+                            alert('Error al eliminar: ' + (data.mensaje || 'Error desconocido'));
+                        }
+                    },
+                    error: function (xhr) {
+                        alert('Error al eliminar: ' + (xhr.responseJSON?.mensaje || xhr.statusText || 'Error desconocido'));
+                    }
+                });
+            }
+        }
+    </script>
+}

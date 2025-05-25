@@ -1,0 +1,258 @@
+﻿@{
+    ViewData["Title"] = "Listado de Asignaciones de Roles";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <h2>Listado de Asignaciones de Roles</h2>
+    <button type="button" class="btn btn-primary" onclick="AbrirRegistro('','')">Asignar Rol</button>
+    <table id="tb_userRoles" class="table table-striped display" style="width:100%">
+        <thead>
+            <tr>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<div class="modal fade" id="userRolesForm" tabindex="-1" aria-labelledby="userRolesFormLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userRolesFormLabel">Asignar Rol</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="userRoleForm" novalidate>
+                    <input type="hidden" id="oldEmail" value="" />
+                    <input type="hidden" id="oldRoleName" value="" />
+                    <div class="mb-3">
+                        <label for="userId" class="form-label">Usuario</label>
+                        <select class="form-select" id="userId" name="userId" required>
+                            <option value="">Seleccione un usuario</option>
+                        </select>
+                        <div class="invalid-feedback">El usuario es obligatorio</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="roleId" class="form-label">Rol</label>
+                        <select class="form-select" id="roleId" name="roleId" required>
+                            <option value="">Seleccione un rol</option>
+                        </select>
+                        <div class="invalid-feedback">El rol es obligatorio</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btn_grabar">Guardar Datos</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            console.log('Inicializando DataTables para tb_userRoles');
+            $('#tb_userRoles').DataTable({
+                ajax: {
+                    url: '@Url.Action("Listar", "UserRoles")',
+                    dataSrc: function (json) {
+                        if (json.error) {
+                            console.error('Error en la respuesta de Listar:', json.error);
+                            alert('Error al cargar las asignaciones: ' + json.error);
+                            return [];
+                        }
+                        return json.data || [];
+                    },
+                    error: function (xhr) {
+                        console.error('Error en AJAX:', xhr.responseText);
+                        let errorMsg = xhr.responseJSON?.error || xhr.statusText || 'Error desconocido';
+                        alert('Error al cargar las asignaciones: ' + errorMsg);
+                    }
+                },
+                columns: [
+                    { data: 'email' },
+                    { data: 'roleName' },
+                    {
+                        data: null,
+                        render: function (data, type, row) {
+                            return '<a href="javascript:AbrirRegistro(\'' + row.email + '\',\'' + row.roleName + '\')" class="btn btn-warning btn-sm" title="Editar"><i class="fas fa-edit"></i></a> ' +
+                                   '<a href="javascript:Borrar(\'' + row.email + '\',\'' + row.roleName + '\')" class="btn btn-danger btn-sm" title="Eliminar"><i class="fas fa-trash"></i></a>';
+                        }
+                    }
+                ],
+                initComplete: function () {
+                    console.log('DataTables inicializado');
+                }
+            });
+
+            // Cargar usuarios y roles para los combo boxes
+            $.ajax({
+                url: '@Url.Action("GetUsers", "UserRoles")',
+                type: 'GET',
+                success: function (response) {
+                    if (response.data) {
+                        response.data.forEach(function (user) {
+                            $('#userId').append('<option value="' + user.userId + '" data-email="' + user.email + '">' + user.email + '</option>');
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    console.error('Error al cargar usuarios:', xhr.responseText);
+                    alert('Error al cargar usuarios: ' + (xhr.responseJSON?.error || xhr.statusText));
+                }
+            });
+
+            $.ajax({
+                url: '@Url.Action("GetRoles", "UserRoles")',
+                type: 'GET',
+                success: function (response) {
+                    if (response.data) {
+                        response.data.forEach(function (role) {
+                            $('#roleId').append('<option value="' + role.roleId + '" data-name="' + role.name + '">' + role.name + '</option>');
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    console.error('Error al cargar roles:', xhr.responseText);
+                    alert('Error al cargar roles: ' + (xhr.responseJSON?.error || xhr.statusText));
+                }
+            });
+        });
+
+        function AbrirRegistro(email, roleName) {
+            $('#userRoleForm').removeClass('was-validated');
+            $('#userRolesFormLabel').text((email === '' && roleName === '') ? 'Asignar Rol' : 'Editar Asignación');
+
+            if (email !== '' && roleName !== '') {
+                $('#oldEmail').val(email);
+                $('#oldRoleName').val(roleName);
+
+                // Seleccionar los valores correspondientes en los dropdowns
+                $('#userId option').each(function () {
+                    if ($(this).data('email') === email) {
+                        $('#userId').val($(this).val());
+                    }
+                });
+
+                $('#roleId option').each(function () {
+                    if ($(this).data('name') === roleName) {
+                        $('#roleId').val($(this).val());
+                    }
+                });
+
+                $('#userRolesForm').modal('show');
+            } else {
+                $('#oldEmail').val('');
+                $('#oldRoleName').val('');
+                $('#userId').val('');
+                $('#roleId').val('');
+                $('#userRolesForm').modal('show');
+            }
+        }
+
+        $('#btn_grabar').click(function () {
+            const form = $('#userRoleForm')[0];
+            form.classList.add('was-validated');
+
+            const userIdValue = $('#userId').val();
+            const roleIdValue = $('#roleId').val();
+            console.log('Valor del usuario:', userIdValue);
+            console.log('Valor del rol:', roleIdValue);
+
+            if (form.checkValidity()) {
+                let userRole = {
+                    UserId: parseInt(userIdValue),
+                    RoleId: parseInt(roleIdValue),
+                    OldUserId: 0, // No lo usamos directamente
+                    OldRoleId: 0  // No lo usamos directamente
+                };
+
+                // Obtener oldUserId y oldRoleId basados en oldEmail y oldRoleName
+                const oldEmail = $('#oldEmail').val();
+                const oldRoleName = $('#oldRoleName').val();
+
+                if (oldEmail && oldRoleName) {
+                    $('#userId option').each(function () {
+                        if ($(this).data('email') === oldEmail) {
+                            userRole.OldUserId = parseInt($(this).val());
+                        }
+                    });
+
+                    $('#roleId option').each(function () {
+                        if ($(this).data('name') === oldRoleName) {
+                            userRole.OldRoleId = parseInt($(this).val());
+                        }
+                    });
+                }
+
+                console.log('Datos enviados a Grabar:', userRole);
+
+                $.ajax({
+                    url: '@Url.Action("Grabar", "UserRoles")',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(userRole),
+                    success: function (data) {
+                        if (data.resultado) {
+                            $('#tb_userRoles').DataTable().ajax.reload();
+                            $('#userRolesForm').modal('hide');
+                            form.classList.remove('was-validated');
+                        } else {
+                            alert('No fue posible grabar la información: ' + (data.mensaje || 'Error desconocido'));
+                        }
+                    },
+                    error: function (xhr) {
+                        console.error('Error al grabar:', xhr.responseText);
+                        alert('Error al grabar: ' + (xhr.responseJSON?.mensaje || xhr.statusText || 'Error desconocido'));
+                    }
+                });
+            } else {
+                console.warn('Formulario no válido');
+            }
+        });
+
+        function Borrar(email, roleName) {
+            if (confirm('¿Seguro de eliminar esta asignación?')) {
+                let userId, roleId;
+
+                // Obtener userId y roleId basados en email y roleName
+                $('#userId option').each(function () {
+                    if ($(this).data('email') === email) {
+                        userId = parseInt($(this).val());
+                    }
+                });
+
+                $('#roleId option').each(function () {
+                    if ($(this).data('name') === roleName) {
+                        roleId = parseInt($(this).val());
+                    }
+                });
+
+                if (!userId || !roleId) {
+                    alert('Error: No se pudo identificar el usuario o el rol para eliminar.');
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("Borrar", "UserRoles")',
+                    type: 'POST',
+                    data: { userId: userId, roleId: roleId },
+                    success: function (data) {
+                        if (data.resultado) {
+                            $('#tb_userRoles').DataTable().ajax.reload();
+                        } else {
+                            alert('Error al eliminar: ' + (data.mensaje || 'Error desconocido'));
+                        }
+                    },
+                    error: function (xhr) {
+                        alert('Error al eliminar: ' + (xhr.responseJSON?.mensaje || xhr.statusText || 'Error desconocido'));
+                    }
+                });
+            }
+        }
+    </script>
+}

@@ -2,6 +2,7 @@
 
 namespace E_comerce_Videogame.Models
 {
+    // 2. Users
     public class User
     {
         [Key]
@@ -19,10 +20,9 @@ namespace E_comerce_Videogame.Models
         [StringLength(100)]
         public string Name { get; set; }
 
-        [Required]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        // Relación con UserRoles (uno a muchos)
-        public ICollection<UserRole> UserRoles { get; set; }
+        // Propiedad de navegación
+        public virtual ICollection<UserRole> UserRoles { get; set; }
     }
 }

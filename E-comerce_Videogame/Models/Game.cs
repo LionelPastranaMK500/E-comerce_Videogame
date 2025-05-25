@@ -1,34 +1,35 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using E_comerce_Videogame.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace E_comerce_Videogame.Models
+public class Game
 {
-    public class Game
-    {
-        [Key]
-        public int GameId { get; set; }
+    [Key]
+    public int GameId { get; set; }
 
-        [Required]
-        [StringLength(255)]
-        public string Title { get; set; }
+    [Required]
+    [StringLength(255)]
+    public string Title { get; set; }
 
-        [StringLength(4000)]
-        public string Description { get; set; }
+    public string Description { get; set; }
 
-        public DateTime? ReleaseDate { get; set; }
+    public DateTime? ReleaseDate { get; set; }
 
-        public int? CategoryId { get; set; }
+    public int? CategoryId { get; set; }
 
-        public int? PublisherId { get; set; }
+    public string CategoryName { get; set; }
 
-        [Required]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public int? PublisherId { get; set; }
 
-        // Relaciones de navegación
-        [ForeignKey("CategoryId")]
-        public Category Category { get; set; }
+    public string PublisherName { get; set; }
 
-        [ForeignKey("PublisherId")]
-        public Publisher Publisher { get; set; }
-    }
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+    public int? GenreId { get; set; }
+    public string GenreName { get; set; }
+
+    // Propiedades de navegación
+    public virtual Category Category { get; set; }
+    public virtual Publisher Publisher { get; set; }
+    public virtual Genre Genre { get; set; }
+    public virtual ICollection<Edition> Editions { get; set; }
 }

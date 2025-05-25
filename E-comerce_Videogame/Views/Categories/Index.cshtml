@@ -1,0 +1,150 @@
+﻿@{
+    ViewData["Title"] = "Listado de Categorías";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <h2>Listado de Categorías</h2>
+    <button type="button" class="btn btn-primary" onclick="AbrirRegistro(0)">Registrar Categoría</button>
+    <table id="tb_categories" class="table table-striped display" style="width:100%">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+<div class="modal fade" id="categoriesForm" tabindex="-1" aria-labelledby="categoriesFormLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="categoriesFormLabel">Registrar Categoría</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="categoryForm">
+                    <input type="hidden" id="categoryId" value="0" />
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="name" required>
+                        <div class="invalid-feedback">El nombre es obligatorio</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="description"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary" id="btn_grabar">Guardar Datos</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            console.log('Inicializando DataTables para tb_categories');
+            $('#tb_categories').DataTable({
+                ajax: {
+                    url: '@Url.Action("Listar", "Categories")',
+                    dataSrc: 'data',
+                    error: function (xhr, error, thrown) {
+                        console.error('Error en AJAX:', error, thrown, xhr.responseText);
+                    }
+                },
+                columns: [
+                    { data: 'categoryId' },
+                    { data: 'name' },
+                    { data: 'description' },
+                    {
+                        data: null,
+                        render: function (data, type, row) {
+                            return '<a href="javascript:AbrirRegistro(' + row.categoryId + ')" class="btn btn-warning btn-sm" title="Editar"><i class="fas fa-edit"></i></a> ' +
+                                   '<a href="javascript:Borrar(' + row.categoryId + ')" class="btn btn-danger btn-sm" title="Eliminar"><i class="fas fa-trash"></i></a>';
+                        }
+                    }
+                ],
+                initComplete: function () {
+                    console.log('DataTables inicializado');
+                }
+            });
+        });
+
+        function AbrirRegistro(categoryId) {
+            if (categoryId !== 0) {
+                $.ajax({
+                    url: '@Url.Action("Consultar", "Categories")',
+                    type: 'GET',
+                    data: { categoryId: categoryId },
+                    success: function (data) {
+                        console.log('Datos recibidos:', data);
+                        $('#categoryId').val(data.categoryId);
+                        $('#name').val(data.name);
+                        $('#description').val(data.description);
+                        $('#categoriesForm').modal('show');
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error al consultar:', error, xhr.responseText);
+                        alert('Error al cargar los datos');
+                    }
+                });
+            } else {
+                $('#categoryId').val(0);
+                $('#name').val('');
+                $('#description').val('');
+                $('#categoriesForm').modal('show');
+            }
+        }
+
+        $('#btn_grabar').click(function () {
+            if ($('#categoryForm')[0].checkValidity()) {
+                let category = {
+                    categoryId: parseInt($('#categoryId').val()),
+                    name: $('#name').val(),
+                    description: $('#description').val() || null
+                };
+                $.ajax({
+                    url: '@Url.Action("Grabar", "Categories")',
+                    type: 'POST',
+                    contentType: 'application/json; charset=utf-8',
+                    data: JSON.stringify(category),
+                    success: function (data) {
+                        if (data.resultado) {
+                            $('#tb_categories').DataTable().ajax.reload();
+                            $('#categoriesForm').modal('hide');
+                        } else {
+                            alert('No fue posible grabar la información');
+                        }
+                    },
+                    error: function () {
+                        alert('Error al grabar');
+                    }
+                });
+            } else {
+                $('#categoryForm').addClass('was-validated');
+            }
+        });
+
+        function Borrar(categoryId) {
+            if (confirm('¿Seguro de eliminar?')) {
+                $.ajax({
+                    url: '@Url.Action("Borrar", "Categories")',
+                    type: 'POST',
+                    data: { categoryId: categoryId },
+                    success: function (data) {
+                        if (data.resultado) {
+                            $('#tb_categories').DataTable().ajax.reload();
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+}

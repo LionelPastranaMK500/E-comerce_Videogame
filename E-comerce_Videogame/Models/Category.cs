@@ -2,6 +2,7 @@
 
 namespace E_comerce_Videogame.Models
 {
+    // 4. Categories
     public class Category
     {
         [Key]
@@ -11,10 +12,9 @@ namespace E_comerce_Videogame.Models
         [StringLength(100)]
         public string Name { get; set; }
 
-        [StringLength(4000)] // NVARCHAR(MAX) mapeado como StringLength(4000) por simplicidad
-        public string Description { get; set; }
+        public string? Description { get; set; }
 
-        // Relación con Games (uno a muchos)
-        public ICollection<Game> Games { get; set; }
+        // Propiedad de navegación
+        public virtual ICollection<Game> Games { get; set; }
     }
 }

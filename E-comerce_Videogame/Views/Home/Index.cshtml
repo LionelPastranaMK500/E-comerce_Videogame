@@ -1,8 +1,31 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Authentication.Cookies
+@using Microsoft.AspNetCore.Authorization
+
+@{
     ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container text-center">
+    <h1>Bienvenido a EcommerceVideogame</h1>
+
+    @if (!User.Identity.IsAuthenticated)
+    {
+        <p>Inicia sesión para continuar.</p>
+        <a asp-controller="Account" asp-action="Login" class="btn btn-primary">Iniciar Sesión</a>
+    }
+    else
+    {
+        <p>Bienvenido, @User.Identity.Name!</p>
+
+        @if (!User.IsInRole("Admin"))
+        {
+            <a asp-controller="Games" asp-action="Index" class="btn btn-primary">Ver Juegos</a>
+        }
+
+        <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-secondary">Cerrar Sesión</button>
+        </form>
+    }
 </div>

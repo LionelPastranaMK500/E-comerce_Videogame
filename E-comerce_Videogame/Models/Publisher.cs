@@ -2,6 +2,7 @@
 
 namespace E_comerce_Videogame.Models
 {
+    // 5. Publishers
     public class Publisher
     {
         [Key]
@@ -14,7 +15,7 @@ namespace E_comerce_Videogame.Models
         [StringLength(255)]
         public string Website { get; set; }
 
-        // Relación con Games (uno a muchos)
-        public ICollection<Game> Games { get; set; }
+        // Propiedad de navegación
+        public virtual ICollection<Game> Games { get; set; }
     }
 }
