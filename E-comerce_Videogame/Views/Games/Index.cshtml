@@ -5,13 +5,17 @@
 
 <div class="container">
     <h2>Listado de Juegos</h2>
-    <button type="button" class="btn btn-primary" onclick="AbrirRegistro(0)">Registrar Juego</button>
+    <div class="mb-3">
+        <button type="button" class="btn btn-success" id="btnExportarExcel">Exportar a Excel</button>
+        <button type="button" class="btn btn-primary" onclick="AbrirRegistro(0)">Registrar Juego</button>
+    </div>
     <table id="tb_games" class="table table-striped display" style="width:100%">
         <thead>
             <tr>
                 <th>ID</th>
                 <th>Título</th>
                 <th>Descripción</th>
+                <th>Precio</th>
                 <th>Fecha de Lanzamiento</th>
                 <th>Acciones</th>
             </tr>
@@ -41,6 +45,10 @@
                     <div class="mb-3">
                         <label for="description" class="form-label">Descripción</label>
                         <textarea class="form-control" id="description" name="description"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="precio" class="form-label">Precio</label>
+                        <input type="number" step="0.01" class="form-control" id="precio" name="precio">
                     </div>
                     <div class="mb-3">
                         <label for="releaseDate" class="form-label">Fecha de Lanzamiento</label>
@@ -79,6 +87,7 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         $(document).ready(function () {
             console.log('Inicializando DataTables para tb_games');
@@ -103,6 +112,12 @@
                     { data: 'gameId' },
                     { data: 'title' },
                     { data: 'description' },
+                    {
+                        data: 'precio',
+                        render: function (data) {
+                            return data != null ? data.toFixed(2) : '';
+                        }
+                    },
                     {
                         data: 'releaseDate',
                         render: function (data) {
@@ -172,6 +187,84 @@
                     console.error('Error al cargar géneros:', xhr.responseText);
                 }
             });
+
+            $('#btnExportarExcel').click(function () {
+                $.ajax({
+                    url: '@Url.Action("GetAllGamesDetailed", "Games")',
+                    type: 'GET',
+                    success: function (response) {
+                        if (response.error) {
+                            alert('Error al cargar los juegos para exportar: ' + response.error);
+                            return;
+                        }
+
+                        const games = response.data || [];
+                        const exportData = games.map(game => ({
+                            GameId: game.gameId,
+                            Title: game.title || '',
+                            Description: game.description || '',
+                            Precio: game.precio != null ? game.precio.toFixed(2) : '',
+                            ReleaseDate: game.releaseDate ? new Date(game.releaseDate).toLocaleDateString() : '',
+                            CategoryName: game.categoryName || '',
+                            PublisherName: game.publisherName || '',
+                            GenreName: game.genreName || '',
+                            CreatedAt: game.createdAt ? new Date(game.createdAt).toLocaleString() : ''
+                        }));
+
+                        // Crear el archivo Excel
+                        const wb = XLSX.utils.book_new();
+                        const ws = XLSX.utils.json_to_sheet(exportData);
+
+                        // Definir anchos de columna (mantenidos como los ajustaste)
+                        ws['!cols'] = [
+                            { wch: 5 },   // GameId
+                            { wch: 25 },  // Title
+                            { wch: 40 },  // Description
+                            { wch: 15 },  // Precio
+                            { wch: 15 },  // ReleaseDate
+                            { wch: 15 },  // CategoryName
+                            { wch: 15 },  // PublisherName
+                            { wch: 15 },  // GenreName
+                            { wch: 25 }   // CreatedAt
+                        ];
+
+                        // Aplicar estilos a las celdas
+                        const range = XLSX.utils.decode_range(ws['!ref']);
+                        for (let row = range.s.r; row <= range.e.r; row++) {
+                            for (let col = range.s.c; col <= range.e.c; col++) {
+                                const cellAddress = XLSX.utils.encode_cell({ r: row, c: col });
+                                if (!ws[cellAddress]) continue;
+
+                                // Estilo base para todas las celdas
+                                ws[cellAddress].s = {
+                                    alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
+                                    border: {
+                                        top: { style: 'thin', color: { rgb: '000000' } },
+                                        bottom: { style: 'thin', color: { rgb: '000000' } },
+                                        left: { style: 'thin', color: { rgb: '000000' } },
+                                        right: { style: 'thin', color: { rgb: '000000' } }
+                                    }
+                                };
+
+                                // Aplicar color azul claro solo a la fila de encabezados
+                                if (row === 0) {
+                                    ws[cellAddress].s.fill = {
+                                        fgColor: { rgb: 'D6EAF8' } // Azul claro para encabezados
+                                    };
+                                    ws[cellAddress].s.font = { bold: true, color: { rgb: '000000' } };
+                                }
+                            }
+                        }
+
+                        XLSX.utils.book_append_sheet(wb, ws, "Juegos");
+                        XLSX.writeFile(wb, `Juegos_Exportacion_${new Date().toISOString().split('T')[0]}.xlsx`);
+                    },
+                    error: function (xhr) {
+                        console.error('Error en la solicitud:', xhr.responseText);
+                        alert('Error al cargar los juegos: ' + (xhr.responseJSON?.error || xhr.statusText || 'Error desconocido'));
+                    }
+                });
+            });
         });
 
         function AbrirRegistro(gameId) {
@@ -191,6 +284,7 @@
                             $('#gameId').val(response.data.gameId);
                             $('#title').val(response.data.title || '');
                             $('#description').val(response.data.description || '');
+                            $('#precio').val(response.data.precio || '');
                             $('#releaseDate').val(response.data.releaseDate ? new Date(response.data.releaseDate).toISOString().split('T')[0] : '');
                             $('#categoryId').val(response.data.categoryId || '');
                             $('#publisherId').val(response.data.publisherId || '');
@@ -212,6 +306,7 @@
                 $('#gameId').val(0);
                 $('#title').val('');
                 $('#description').val('');
+                $('#precio').val('');
                 $('#releaseDate').val('');
                 $('#categoryId').val('');
                 $('#publisherId').val('');
@@ -232,8 +327,9 @@
             if (form.checkValidity()) {
                 let game = {
                     GameId: parseInt($('#gameId').val()),
-                    Title: titleValue, // Usar Title en lugar de title
+                    Title: titleValue,
                     Description: $('#description').val() || null,
+                    precio: $('#precio').val() ? parseFloat($('#precio').val()) : null,
                     ReleaseDate: $('#releaseDate').val() || null,
                     CategoryId: $('#categoryId').val() ? parseInt($('#categoryId').val()) : null,
                     PublisherId: $('#publisherId').val() ? parseInt($('#publisherId').val()) : null,

@@ -12,6 +12,8 @@ public class Game
 
     public string Description { get; set; }
 
+    public double? precio { get; set; }
+
     public DateTime? ReleaseDate { get; set; }
 
     public int? CategoryId { get; set; }
@@ -25,6 +27,7 @@ public class Game
     public DateTime CreatedAt { get; set; } = DateTime.Now;
 
     public int? GenreId { get; set; }
+
     public string GenreName { get; set; }
 
     // Propiedades de navegación

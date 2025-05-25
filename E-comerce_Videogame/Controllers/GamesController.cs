@@ -35,6 +35,7 @@ namespace E_comerce_Videogame.Controllers
                         gameId = g.GameId,
                         title = g.Title,
                         description = g.Description ?? "",
+                        precio = g.Precio,
                         releaseDate = g.ReleaseDate
                     })
                     .ToList();
@@ -60,6 +61,7 @@ namespace E_comerce_Videogame.Controllers
                         gameId = g.GameId,
                         title = g.Title,
                         description = g.Description ?? "",
+                        precio = g.precio,
                         releaseDate = g.ReleaseDate,
                         categoryId = g.CategoryId,
                         categoryName = g.CategoryName ?? "",
@@ -90,6 +92,7 @@ namespace E_comerce_Videogame.Controllers
                     game.GameId,
                     game.Title,
                     game.Description,
+                    game.precio,
                     game.ReleaseDate,
                     game.CategoryId,
                     game.PublisherId,
@@ -116,7 +119,7 @@ namespace E_comerce_Videogame.Controllers
 
                 if (game.GameId == 0) // Crear
                 {
-                    string cad_sql = "EXEC sp_create_Games @Title, @Description, @ReleaseDate, @CategoryId, @PublisherId, @GenreId";
+                    string cad_sql = "EXEC sp_create_Games @Title, @Description, @ReleaseDate, @CategoryId, @PublisherId, @GenreId, @Precio";
                     var newGameId = _context.Database
                         .SqlQueryRaw<decimal>(cad_sql,
                             new SqlParameter("@Title", game.Title),
@@ -124,14 +127,15 @@ namespace E_comerce_Videogame.Controllers
                             new SqlParameter("@ReleaseDate", (object)game.ReleaseDate ?? DBNull.Value),
                             new SqlParameter("@CategoryId", (object)game.CategoryId ?? DBNull.Value),
                             new SqlParameter("@PublisherId", (object)game.PublisherId ?? DBNull.Value),
-                            new SqlParameter("@GenreId", (object)game.GenreId ?? DBNull.Value))
+                            new SqlParameter("@GenreId", (object)game.GenreId ?? DBNull.Value),
+                            new SqlParameter("@Precio", (object)game.precio ?? DBNull.Value))
                         .AsEnumerable()
                         .Single();
                     return Json(new { resultado = true, gameId = (int)newGameId });
                 }
                 else // Actualizar
                 {
-                    string cad_sql = "EXEC sp_update_Games @GameId, @Title, @Description, @ReleaseDate, @CategoryId, @PublisherId, @GenreId";
+                    string cad_sql = "EXEC sp_update_Games @GameId, @Title, @Description, @ReleaseDate, @CategoryId, @PublisherId, @GenreId, @Precio";
                     _context.Database.ExecuteSqlRaw(cad_sql,
                         new SqlParameter("@GameId", game.GameId),
                         new SqlParameter("@Title", game.Title),
@@ -139,7 +143,8 @@ namespace E_comerce_Videogame.Controllers
                         new SqlParameter("@ReleaseDate", (object)game.ReleaseDate ?? DBNull.Value),
                         new SqlParameter("@CategoryId", (object)game.CategoryId ?? DBNull.Value),
                         new SqlParameter("@PublisherId", (object)game.PublisherId ?? DBNull.Value),
-                        new SqlParameter("@GenreId", (object)game.GenreId ?? DBNull.Value));
+                        new SqlParameter("@GenreId", (object)game.GenreId ?? DBNull.Value),
+                        new SqlParameter("@Precio", (object)game.precio ?? DBNull.Value));
                     return Json(new { resultado = true });
                 }
             }
@@ -216,6 +221,37 @@ namespace E_comerce_Videogame.Controllers
                     .Select(g => new { g.GenreId, g.Name })
                     .ToList();
                 return Json(new { data = genres, error = (string)null });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { data = new List<object>(), error = ex.Message });
+            }
+        }
+
+        [HttpGet]
+        public JsonResult GetAllGamesDetailed()
+        {
+            try
+            {
+                string cad_sql = "EXEC sp_getAll_Games_Detailed";
+                var games = _context.Database
+                    .SqlQueryRaw<GameExportDto>(cad_sql)
+                    .AsEnumerable()
+                    .Select(g => new
+                    {
+                        gameId = g.GameId,
+                        title = g.Title,
+                        description = g.Description ?? "",
+                        precio = g.precio,
+                        releaseDate = g.ReleaseDate,
+                        categoryName = g.CategoryName ?? "",
+                        publisherName = g.PublisherName ?? "",
+                        genreName = g.GenreName ?? "",
+                        createdAt = g.CreatedAt
+                    })
+                    .ToList();
+
+                return Json(new { data = games, error = (string)null });
             }
             catch (Exception ex)
             {
