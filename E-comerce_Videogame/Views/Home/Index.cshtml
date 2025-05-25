@@ -8,26 +8,300 @@
 
 <div class="home">
     <div class="home-container">
-        <h1>Bienvenido a EcommerceVideogame</h1>
+        <h1>EcommerceVideogame</h1>
 
-        @if (!User.Identity.IsAuthenticated)
-        {
-            <p>Inicia sesión para continuar.</p>
-            <a asp-controller="Account" asp-action="Login" class="btn">Iniciar Sesión</a>
-        }
-        else
-        {
-            <p>Bienvenido, @User.Identity.Name!</p>
+        <!-- Sección de Funcionalidades Principales -->
+        <h2 class="text-center mb-4">Funcionalidades Principales</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-cash-register fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Gestión de Ventas</strong></h5>
+                        <p class="card-text"><strong>Registro y seguimiento de todas tus transacciones de juegos.</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-boxes fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Control de Inventario</strong></h5>
+                        <p class="card-text"><strong>Administración detallada de stock y ediciones de videojuegos.</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-chart-pie fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Reportes Avanzados</strong></h5>
+                        <p class="card-text"><strong>Genera análisis detallados de tu rendimiento comercial.</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            @if (!User.IsInRole("Admin"))
+        <!-- Sección de Información de nuestra empresa -->
+        <h2 class="text-center mt-5 mb-4">Información de nuestra empresa</h2>
+        <div class="row g-4">
+            <!-- Tarjeta de Identidad Legal -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-id-card fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Identidad Legal</strong></h5>
+                        <p class="card-text">
+                            <strong>RUC:</strong> 20603884291<br>
+                            <strong>Dirección:</strong> Urbanización Villa Los Angeles, Altura de la 4ª de Seanne 232
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta de Especialización -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-laptop-code fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Especialización</strong></h5>
+                        <p class="card-text">
+                            <strong>Programación informática</strong><br>
+                            <strong>Venta al por menor por internet</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta de Misión Corporativa -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-bullseye fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Misión Corporativa</strong></h5>
+                        <p class="card-text">
+                            <strong>Ayudar a los negocios y emprendedores a despegar su marca en el mundo mediante un trabajo creativo y comprometido.</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta de Visión Estratégica -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-eye fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Visión Estratégica</strong></h5>
+                        <p class="card-text">
+                            <strong>Ser punto de referencia en ofrecer las mejores soluciones de tecnología Digital en el Perú.</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Nuestra Empresa -->
+        <h2 class="text-center mt-5 mb-4">Nuestra Empresa</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-code fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Constructor Web</strong></h5>
+                        <p class="card-text"><strong>Plataforma para creación y edición de hojas de estilo con personalización avanzada</strong></p>
+                        <p class="card-text"><small>Nuevo</small> <small>Popular</small></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-file-invoice-dollar fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Facturación Fácil</strong></h5>
+                        <p class="card-text"><strong>sistema automatizado para generación de facturas electrónicas y reportes</strong></p>
+                        <p class="card-text"><small>Nuevo</small> <small>Popular</small></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-envelope fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Correos Corporativos</strong></h5>
+                        <p class="card-text"><strong>Solución profesional de correos electrónicos personalizados con dominio empresarial</strong></p>
+                        <p class="card-text"><small>Nuevo</small> <small>Popular</small></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-comments fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Chat Buho</strong></h5>
+                        <p class="card-text"><strong>Plataforma unificada para gestión de comunicaciones multinacional</strong></p>
+                        <p class="card-text"><small>Nuevo</small> <small>Popular</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Nuestros Valores -->
+        <h2 class="text-center mt-5 mb-4">Nuestros Valores</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-shield-alt fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Integridad</strong></h5>
+                        <p class="card-text"><strong>Valor fundamental que guía nuestras acciones y decisiones como empresa.</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-concierge-bell fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Servicio</strong></h5>
+                        <p class="card-text"><strong>Valor fundamental que guía nuestras acciones y decisiones como empresa.</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-handshake fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Compromiso</strong></h5>
+                        <p class="card-text"><strong>Valor fundamental que guía nuestras acciones y decisiones como empresa.</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-users fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Respeto</strong></h5>
+                        <p class="card-text"><strong>Valor fundamental que guía nuestras acciones y decisiones como empresa.</strong></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-center">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-balance-scale fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Responsabilidad</strong></h5>
+                        <p class="card-text"><strong>Valor fundamental que guía nuestras acciones y decisiones como empresa.</strong></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nueva Sección de Nuestras Soluciones Digitales -->
+        <h2 class="text-center mt-5 mb-4">Nuestras Soluciones Digitales</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-code fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Constructor Web</strong></h5>
+                        <p class="card-text"><strong>Plataforma para creación y edición de hojas de estilo con personalización avanzada</strong></p>
+                        <p class="card-text"><small>Nuevo</small> <small>Popular</small></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-file-invoice-dollar fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Facturación Fácil</strong></h5>
+                        <p class="card-text"><strong>sistema automatizado para generación de facturas electrónicas y reportes</strong></p>
+                        <p class="card-text"><small>Nuevo</small> <small>Popular</small></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-envelope fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Correos Corporativos</strong></h5>
+                        <p class="card-text"><strong>Solución profesional de correos electrónicos personalizados con dominio empresarial</strong></p>
+                        <p class="card-text"><small>Nuevo</small> <small>Popular</small></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-center">
+                    <div class="card-body bg-white">
+                        <i class="fas fa-comments fa-2x text-dark"></i>
+                        <h5 class="card-title"><strong>Chat Buho</strong></h5>
+                        <p class="card-text"><strong>Plataforma unificada para gestión de comunicaciones multinacional</strong></p>
+                        <p class="card-text"><small>Nuevo</small> <small>Popular</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de autenticación -->
+        <div class="mt-5 text-center">
+            @if (!User.Identity.IsAuthenticated)
             {
-                <a asp-controller="Games" asp-action="Index" class="btn">Ver Juegos</a>
+                <p>Inicia sesión para continuar.</p>
+                <a asp-controller="Account" asp-action="Login" class="btn btn-primary">Iniciar Sesión</a>
             }
+            else
+            {
+                <p><strong>Bienvenido, @User.Identity.Name!</strong></p>
 
-            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                @Html.AntiForgeryToken()
-                <button type="submit" class="btn btn-secondary">Cerrar Sesión</button>
-            </form>
-        }
+                @if (!User.IsInRole("Admin"))
+                {
+                    <a asp-controller="Games" asp-action="Index" class="btn btn-primary">Ver Juegos</a>
+                }
+
+                <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-secondary">Cerrar Sesión</button>
+                </form>
+            }
+        </div>
     </div>
 </div>
+
+<style>
+    .home-container {
+        padding: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .card-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        overflow-wrap: break-word;
+    }
+
+    .card-title {
+        margin-bottom: 10px;
+        color: #000000 !important;
+    }
+
+    .card-text {
+        margin: 0;
+        color: #000000 !important;
+        overflow-wrap: break-word;
+        word-break: break-all;
+    }
+
+    .bg-white {
+        background-color: #ffffff !important;
+    }
+
+    .text-dark {
+        color: #333333 !important;
+    }
+</style>
