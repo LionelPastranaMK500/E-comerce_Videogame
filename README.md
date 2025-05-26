@@ -1,3 +1,6 @@
+
+https://senatipe-my.sharepoint.com/:u:/g/personal/1259248_senati_pe/EaDu2Gj9FTdCiQChkSJAR8oB1F31T9WO6JmZELZiLVxjSA?e=vg5K2L
+
 EcommerceVideogame - Documentación del Proyecto
 Descripción
 EcommerceVideogame es una aplicación web desarrollada para la venta de videojuegos digitales, diseñada para ofrecer a los gamers en Perú acceso a títulos populares y exclusivos. La plataforma proporciona una experiencia de compra rápida, segura y confiable, con un catálogo que incluye clásicos y los últimos lanzamientos. Este proyecto utiliza ASP.NET Core como framework principal, integrando Bootstrap para el diseño responsive, Font Awesome para íconos, y DataTables para tablas interactivas.
